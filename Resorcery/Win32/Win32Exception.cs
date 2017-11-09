@@ -1,4 +1,4 @@
-/* ----------------------------------------------------------------------------
+﻿/* ----------------------------------------------------------------------------
 Origami Win32 Library
 Copyright (C) 1998-2017  George E Greaney
 
@@ -24,7 +24,12 @@ using System.Text;
 
 namespace Origami.Win32
 {
-    public class ResourceParser
+    class Win32Exception : Exception
     {
+        public Win32Exception(string message)
+            : base(message)
+        {
+        }
+
     }
 }
