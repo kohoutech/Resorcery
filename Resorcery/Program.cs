@@ -1,5 +1,5 @@
 ﻿/* ----------------------------------------------------------------------------
-Origami Win32 Library
+Resorcery : an executable file resource editor 
 Copyright (C) 1998-2017  George E Greaney
 
 This program is free software; you can redistribute it and/or
@@ -20,39 +20,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Windows.Forms;
 
-namespace Origami.Win32
+namespace Resorcery
 {
-    public class Win32Decoder
+    static class Program
     {
-        public SourceFile source;
-        public Win32Parser parser;
-
-        public PEHeader peHeader;
-        public OptionalHeader optionalHeader;
-        public List<Section> sections;
-        public uint imageBase;
-
-        public Win32Decoder(SourceFile _source)
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
         {
-            source = _source;
-            parser = new Win32Parser(this);
-
-            peHeader = null;
-            optionalHeader = null;
-            sections = null;
-            imageBase = 0;
-        }
-
-        public void setSourceFile(SourceFile _source) 
-        {
-            source = _source;
-        }
-
-        public void parse()
-        {
-            parser.parse();                         //parse win hdr + get section list
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new ResorceryWindow());
         }
     }
 }
