@@ -1,4 +1,4 @@
-/* ----------------------------------------------------------------------------
+﻿/* ----------------------------------------------------------------------------
 Origami Win32 Library
 Copyright (C) 1998-2017  George E Greaney
 
@@ -24,20 +24,43 @@ using System.Text;
 
 namespace Origami.Win32
 {
-    public class ResourceParser
+    public class Win32Decoder
     {
-        Section res;
-        protected SourceFile source;
+        public SourceFile source;
+        public Win32Parser parser;
 
-        public ResourceParser(SourceFile _source, Section _rsrc)
+        public PEHeader peHeader;
+        public OptionalHeader optionalHeader;
+        public List<Section> sections;
+
+        public uint imageBase;
+        public Section exports;
+        public Section imports;
+        public Section resources;
+
+        public Win32Decoder(SourceFile _source)
         {
             source = _source;
-            res = _rsrc;
+            parser = new Win32Parser(this);
+
+            peHeader = null;
+            optionalHeader = null;
+            sections = null;
+
+            imageBase = 0;
+            exports = null;
+            imports = null;
+            resources = null;
+        }
+
+        public void setSourceFile(SourceFile _source) 
+        {
+            source = _source;
         }
 
         public void parse()
         {
-            res.loadSource();
+            parser.parse();                         //parse win hdr + get section list + data directories
         }
     }
 }

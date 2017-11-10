@@ -1,4 +1,4 @@
-/* ----------------------------------------------------------------------------
+﻿/* ----------------------------------------------------------------------------
 Origami Win32 Library
 Copyright (C) 1998-2017  George E Greaney
 
@@ -22,22 +22,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+//doesn't do much at the moment other than being a section subclass that is NOT a code section
+//may be expanded in the future
+
 namespace Origami.Win32
 {
-    public class ResourceParser
+    class DataSection : Section
     {
-        Section res;
-        protected SourceFile source;
-
-        public ResourceParser(SourceFile _source, Section _rsrc)
-        {
-            source = _source;
-            res = _rsrc;
-        }
-
-        public void parse()
-        {
-            res.loadSource();
+        public DataSection(Win32Decoder decoder, SourceFile source, int _secnum, String _sectionName, uint _memsize,
+                uint _memloc, uint _filesize, uint _fileloc, uint _pRelocations, uint _pLinenums,
+            int _relocCount, int _linenumCount, uint _flags)
+            : base(decoder, source, _secnum, _sectionName, _memsize, _memloc, _filesize, _fileloc, _pRelocations, _pLinenums,
+            _relocCount, _linenumCount, _flags)
+        {            
         }
     }
 }
