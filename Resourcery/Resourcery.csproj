@@ -8,7 +8,7 @@
     <ProjectGuid>{5D6B20F8-4C1C-48AB-A7D6-9522F18C66FA}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Resorcery</RootNamespace>
+    <RootNamespace>Resourcery</RootNamespace>
     <AssemblyName>Resorcery</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -46,11 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ResorceryWindow.cs">
+    <Compile Include="Resourcery.cs" />
+    <Compile Include="ResWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ResorceryWindow.Designer.cs">
-      <DependentUpon>ResorceryWindow.cs</DependentUpon>
+    <Compile Include="ResWindow.Designer.cs">
+      <DependentUpon>ResWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -63,8 +64,8 @@
     <Compile Include="Win32\Win32Decoder.cs" />
     <Compile Include="Win32\Win32Exception.cs" />
     <Compile Include="Win32\Win32Parser.cs" />
-    <EmbeddedResource Include="ResorceryWindow.resx">
-      <DependentUpon>ResorceryWindow.cs</DependentUpon>
+    <EmbeddedResource Include="ResWindow.resx">
+      <DependentUpon>ResWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -74,6 +75,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

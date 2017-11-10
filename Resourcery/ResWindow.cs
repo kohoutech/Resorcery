@@ -1,5 +1,5 @@
 ﻿/* ----------------------------------------------------------------------------
-Resorcery : an executable file resource editor 
+Resourcery : an executable file resource editor 
 Copyright (C) 1998-2017  George E Greaney
 
 This program is free software; you can redistribute it and/or
@@ -25,21 +25,69 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
-namespace Resorcery
+namespace Resourcery
 {
-    public partial class ResorceryWindow : Form
+    public partial class ResWindow : Form
     {
-        public ResorceryWindow()
+        public Resourcery res;
+        String currentPath;
+
+        public ResWindow()
         {
+            res = new Resourcery(this);
+
             InitializeComponent();
+            
+            currentPath = null;
         }
 
 //-----------------------------------------------------------------------------
 
+        public void openFile(String filename)
+        {
+            resorceryStatusLabel.Text = "Loading...";
+            closeFile();
+            res.loadSourceFile(filename);
+            res.parseSource();
+            res.parseResource();
+
+            Text = "Resourcery [" + filename + "]";
+            resorceryStatusLabel.Text = "";
+        }
+
+        public void closeFile()
+        {
+            res.close();
+        }
+
+        private void showOpenFileDialog()
+        {
+            String filename = "";
+            if (currentPath != null)
+            {
+                resorceryOpenFileDialog.InitialDirectory = currentPath;
+            }
+            else
+            {
+                resorceryOpenFileDialog.InitialDirectory = Application.StartupPath;
+            }
+            resorceryOpenFileDialog.FileName = "";
+            resorceryOpenFileDialog.DefaultExt = "*.exe";
+            resorceryOpenFileDialog.Filter = "Executable files|*.exe|DLL files|*.dll|All files|*.*";
+            resorceryOpenFileDialog.ShowDialog();
+            filename = resorceryOpenFileDialog.FileName;
+            if (filename.Length != 0)
+            {
+                currentPath = Path.GetDirectoryName(filename);
+                openFile(filename);
+            }
+        }
+
         private void openFileMenuItem_Click(object sender, EventArgs e)
         {
-
+            showOpenFileDialog();
         }
 
         private void exitFileMenuItem_Click(object sender, EventArgs e)

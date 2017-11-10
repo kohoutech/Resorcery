@@ -1,6 +1,6 @@
-﻿namespace Resorcery
+﻿namespace Resourcery
 {
-    partial class ResorceryWindow
+    partial class ResWindow
     {
         /// <summary>
         /// Required designer variable.
@@ -28,12 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResorceryWindow));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResWindow));
             this.resorceryMenuStrip = new System.Windows.Forms.MenuStrip();
-            this.resorceryStatusStrip = new System.Windows.Forms.StatusStrip();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.resTreeView = new System.Windows.Forms.TreeView();
-            this.resDsiplay = new System.Windows.Forms.Panel();
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
@@ -43,7 +39,14 @@
             this.collapseTreeResourceMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutHelpMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resorceryStatusStrip = new System.Windows.Forms.StatusStrip();
+            this.resorceryStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.resTreeView = new System.Windows.Forms.TreeView();
+            this.resDsiplay = new System.Windows.Forms.Panel();
+            this.resorceryOpenFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.resorceryMenuStrip.SuspendLayout();
+            this.resorceryStatusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -61,49 +64,6 @@
             this.resorceryMenuStrip.Size = new System.Drawing.Size(434, 24);
             this.resorceryMenuStrip.TabIndex = 0;
             this.resorceryMenuStrip.Text = "menuStrip1";
-            // 
-            // resorceryStatusStrip
-            // 
-            this.resorceryStatusStrip.Location = new System.Drawing.Point(0, 389);
-            this.resorceryStatusStrip.Name = "resorceryStatusStrip";
-            this.resorceryStatusStrip.Size = new System.Drawing.Size(434, 22);
-            this.resorceryStatusStrip.TabIndex = 1;
-            this.resorceryStatusStrip.Text = "statusStrip1";
-            // 
-            // splitContainer1
-            // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 24);
-            this.splitContainer1.Name = "splitContainer1";
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.resTreeView);
-            // 
-            // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.Controls.Add(this.resDsiplay);
-            this.splitContainer1.Size = new System.Drawing.Size(434, 365);
-            this.splitContainer1.SplitterDistance = 144;
-            this.splitContainer1.TabIndex = 2;
-            // 
-            // resTreeView
-            // 
-            this.resTreeView.BackColor = System.Drawing.SystemColors.Window;
-            this.resTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.resTreeView.Location = new System.Drawing.Point(0, 0);
-            this.resTreeView.Name = "resTreeView";
-            this.resTreeView.Size = new System.Drawing.Size(144, 365);
-            this.resTreeView.TabIndex = 0;
-            // 
-            // resDsiplay
-            // 
-            this.resDsiplay.BackColor = System.Drawing.SystemColors.Control;
-            this.resDsiplay.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.resDsiplay.Location = new System.Drawing.Point(0, 0);
-            this.resDsiplay.Name = "resDsiplay";
-            this.resDsiplay.Size = new System.Drawing.Size(286, 365);
-            this.resDsiplay.TabIndex = 0;
             // 
             // fileMenuItem
             // 
@@ -123,19 +83,19 @@
             this.openFileMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openFileMenuItem.Name = "openFileMenuItem";
             this.openFileMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openFileMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openFileMenuItem.Size = new System.Drawing.Size(146, 22);
             this.openFileMenuItem.Text = "&Open";
             this.openFileMenuItem.Click += new System.EventHandler(this.openFileMenuItem_Click);
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(143, 6);
             // 
             // exitFileMenuItem
             // 
             this.exitFileMenuItem.Name = "exitFileMenuItem";
-            this.exitFileMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitFileMenuItem.Size = new System.Drawing.Size(146, 22);
             this.exitFileMenuItem.Text = "E&xit";
             this.exitFileMenuItem.Click += new System.EventHandler(this.exitFileMenuItem_Click);
             // 
@@ -182,11 +142,65 @@
             // aboutHelpMenuItem
             // 
             this.aboutHelpMenuItem.Name = "aboutHelpMenuItem";
-            this.aboutHelpMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutHelpMenuItem.Size = new System.Drawing.Size(116, 22);
             this.aboutHelpMenuItem.Text = "&About...";
             this.aboutHelpMenuItem.Click += new System.EventHandler(this.aboutHelpMenuItem_Click);
             // 
-            // Resorcery
+            // resorceryStatusStrip
+            // 
+            this.resorceryStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.resorceryStatusLabel});
+            this.resorceryStatusStrip.Location = new System.Drawing.Point(0, 389);
+            this.resorceryStatusStrip.Name = "resorceryStatusStrip";
+            this.resorceryStatusStrip.Size = new System.Drawing.Size(434, 22);
+            this.resorceryStatusStrip.TabIndex = 1;
+            this.resorceryStatusStrip.Text = "statusStrip1";
+            // 
+            // resorceryStatusLabel
+            // 
+            this.resorceryStatusLabel.Name = "resorceryStatusLabel";
+            this.resorceryStatusLabel.Size = new System.Drawing.Size(0, 17);
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 24);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.resTreeView);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.resDsiplay);
+            this.splitContainer1.Size = new System.Drawing.Size(434, 365);
+            this.splitContainer1.SplitterDistance = 144;
+            this.splitContainer1.TabIndex = 2;
+            // 
+            // resTreeView
+            // 
+            this.resTreeView.BackColor = System.Drawing.SystemColors.Window;
+            this.resTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.resTreeView.Location = new System.Drawing.Point(0, 0);
+            this.resTreeView.Name = "resTreeView";
+            this.resTreeView.Size = new System.Drawing.Size(144, 365);
+            this.resTreeView.TabIndex = 0;
+            // 
+            // resDsiplay
+            // 
+            this.resDsiplay.BackColor = System.Drawing.SystemColors.Control;
+            this.resDsiplay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.resDsiplay.Location = new System.Drawing.Point(0, 0);
+            this.resDsiplay.Name = "resDsiplay";
+            this.resDsiplay.Size = new System.Drawing.Size(286, 365);
+            this.resDsiplay.TabIndex = 0;
+            // 
+            // resorceryOpenFileDialog
+            // 
+            this.resorceryOpenFileDialog.FileName = "openFileDialog1";
+            // 
+            // ResourceryWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -195,10 +209,12 @@
             this.Controls.Add(this.resorceryStatusStrip);
             this.Controls.Add(this.resorceryMenuStrip);
             this.MainMenuStrip = this.resorceryMenuStrip;
-            this.Name = "Resorcery";
-            this.Text = "Resorcery";
+            this.Name = "ResourceryWindow";
+            this.Text = "Resourcery";
             this.resorceryMenuStrip.ResumeLayout(false);
             this.resorceryMenuStrip.PerformLayout();
+            this.resorceryStatusStrip.ResumeLayout(false);
+            this.resorceryStatusStrip.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -224,6 +240,8 @@
         private System.Windows.Forms.ToolStripMenuItem collapseTreeResourceMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutHelpMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel resorceryStatusLabel;
+        private System.Windows.Forms.OpenFileDialog resorceryOpenFileDialog;
     }
 }
 

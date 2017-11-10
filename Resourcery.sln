@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resorcery", "Resorcery\Resorcery.csproj", "{5D6B20F8-4C1C-48AB-A7D6-9522F18C66FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resourcery", "Resourcery\Resourcery.csproj", "{5D6B20F8-4C1C-48AB-A7D6-9522F18C66FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

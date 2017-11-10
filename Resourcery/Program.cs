@@ -1,5 +1,5 @@
-/* ----------------------------------------------------------------------------
-Origami Win32 Library
+﻿/* ----------------------------------------------------------------------------
+Resorcery : an executable file resource editor 
 Copyright (C) 1998-2017  George E Greaney
 
 This program is free software; you can redistribute it and/or
@@ -20,11 +20,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Windows.Forms;
 
-namespace Origami.Win32
+namespace Resourcery
 {
-    public class ResourceParser
+    static class Program
     {
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new ResWindow());
+        }
     }
 }
