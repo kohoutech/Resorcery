@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 using Origami.Win32;
 
@@ -29,6 +30,9 @@ namespace Resourcery
     public class Resourcery
     {
         public ResWindow rwindow;
+        public TreeView treeView;
+        public Panel dataDisplay;
+
         public SourceFile source;
         public Win32Decoder decoder;
         public Section resources;
@@ -37,6 +41,7 @@ namespace Resourcery
         public Resourcery(ResWindow _rwindow)
         {
             rwindow = _rwindow;
+
             source = null;
             decoder = null;
             resources = null;
@@ -71,5 +76,78 @@ namespace Resourcery
 
 //-----------------------------------------------------------------------------
 
+        public void loadTreeNode(List<ResourceNode> nodes, TreeNode parent)
+        {
+            foreach (ResourceNode node in nodes)
+            {
+                if (node is ResourceDirectory)
+                {
+                    TreeNode treeNode = new TreeNode(node.id.ToString());
+                    parent.Nodes.Add(treeNode);
+                    List<ResourceNode> children = ((ResourceDirectory)node).entries;
+                    loadTreeNode(children, treeNode);
+                }
+                else
+                {
+                    ResourceData dataNode = (ResourceData)node;
+                    ResTreeNode resNode = new ResTreeNode(node.id.ToString(), dataNode);
+                    parent.Nodes.Add(resNode);
+                }
+            }
+        }
+
+        public void loadTreeView()
+        {
+            int i = 1;
+            foreach (ResourceNode node in ((ResourceDirectory)resParser.rootNode).entries) {
+                TreeNode treeNode = new TreeNode(resParser.getNodeType(node.id));
+                treeView.Nodes.Add(treeNode);
+                loadTreeNode(((ResourceDirectory)node).entries, treeNode);
+            }
+            treeView.MouseDoubleClick += new MouseEventHandler(treeView_MouseDoubleClick);
+        }
+
+        void treeView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            TreeNode node = treeView.SelectedNode;
+            if (node is ResTreeNode)
+            {
+                ResourceData dataNode = ((ResTreeNode)node).dataNode;
+                if (dataNode is StringTableEntry)
+                {
+                    displayStringTable((StringTableEntry)dataNode);
+                }
+            }
+        }
+
+
+        void displayStringTable(StringTableEntry strtbl) 
+        {
+            dataDisplay.Controls.Clear();
+
+            TextBox dataText = new TextBox();
+            dataText.Dock = DockStyle.Fill;
+            dataText.Multiline = true;
+            dataDisplay.Controls.Add(dataText);
+
+            foreach (String str in strtbl.strings)
+            {
+                dataText.Text += str;
+                dataText.Text += "\r\n";
+            }
+        }
+    }
+
+//-----------------------------------------------------------------------------
+
+    public class ResTreeNode : TreeNode
+    {
+        public ResourceData dataNode;
+
+        public ResTreeNode(String name, ResourceData _node)
+            : base(name)
+        {
+            dataNode = _node;
+        }
     }
 }

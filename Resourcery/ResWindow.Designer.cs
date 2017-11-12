@@ -43,7 +43,7 @@
             this.resorceryStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.resTreeView = new System.Windows.Forms.TreeView();
-            this.resDsiplay = new System.Windows.Forms.Panel();
+            this.resDataDisplay = new System.Windows.Forms.Panel();
             this.resorceryOpenFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.resorceryMenuStrip.SuspendLayout();
             this.resorceryStatusStrip.SuspendLayout();
@@ -115,7 +115,7 @@
             this.expandTreeResourceMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("expandTreeResourceMenuItem.Image")));
             this.expandTreeResourceMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.expandTreeResourceMenuItem.Name = "expandTreeResourceMenuItem";
-            this.expandTreeResourceMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
+            this.expandTreeResourceMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
             this.expandTreeResourceMenuItem.Size = new System.Drawing.Size(186, 22);
             this.expandTreeResourceMenuItem.Text = "&Expand Tree";
             this.expandTreeResourceMenuItem.Click += new System.EventHandler(this.expandTreeResourceMenuItem_Click);
@@ -173,7 +173,7 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.resDsiplay);
+            this.splitContainer1.Panel2.Controls.Add(this.resDataDisplay);
             this.splitContainer1.Size = new System.Drawing.Size(434, 365);
             this.splitContainer1.SplitterDistance = 144;
             this.splitContainer1.TabIndex = 2;
@@ -187,20 +187,20 @@
             this.resTreeView.Size = new System.Drawing.Size(144, 365);
             this.resTreeView.TabIndex = 0;
             // 
-            // resDsiplay
+            // resDataDisplay
             // 
-            this.resDsiplay.BackColor = System.Drawing.SystemColors.Control;
-            this.resDsiplay.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.resDsiplay.Location = new System.Drawing.Point(0, 0);
-            this.resDsiplay.Name = "resDsiplay";
-            this.resDsiplay.Size = new System.Drawing.Size(286, 365);
-            this.resDsiplay.TabIndex = 0;
+            this.resDataDisplay.BackColor = System.Drawing.SystemColors.Control;
+            this.resDataDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.resDataDisplay.Location = new System.Drawing.Point(0, 0);
+            this.resDataDisplay.Name = "resDataDisplay";
+            this.resDataDisplay.Size = new System.Drawing.Size(286, 365);
+            this.resDataDisplay.TabIndex = 0;
             // 
             // resorceryOpenFileDialog
             // 
             this.resorceryOpenFileDialog.FileName = "openFileDialog1";
             // 
-            // ResourceryWindow
+            // ResWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -209,7 +209,7 @@
             this.Controls.Add(this.resorceryStatusStrip);
             this.Controls.Add(this.resorceryMenuStrip);
             this.MainMenuStrip = this.resorceryMenuStrip;
-            this.Name = "ResourceryWindow";
+            this.Name = "ResWindow";
             this.Text = "Resourcery";
             this.resorceryMenuStrip.ResumeLayout(false);
             this.resorceryMenuStrip.PerformLayout();
@@ -230,7 +230,7 @@
         private System.Windows.Forms.StatusStrip resorceryStatusStrip;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.TreeView resTreeView;
-        private System.Windows.Forms.Panel resDsiplay;
+        private System.Windows.Forms.Panel resDataDisplay;
         private System.Windows.Forms.ToolStripMenuItem fileMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openFileMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator;

@@ -200,6 +200,8 @@ namespace Origami.Win32
             sourceBuf = null;
         }
 
+
+
         public String getSectionData()
         {
             loadSource();

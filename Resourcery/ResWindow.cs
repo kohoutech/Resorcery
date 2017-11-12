@@ -39,6 +39,8 @@ namespace Resourcery
             res = new Resourcery(this);
 
             InitializeComponent();
+            res.treeView = resTreeView;
+            res.dataDisplay = resDataDisplay;
             
             currentPath = null;
         }
@@ -52,6 +54,7 @@ namespace Resourcery
             res.loadSourceFile(filename);
             res.parseSource();
             res.parseResource();
+            res.loadTreeView();
 
             Text = "Resourcery [" + filename + "]";
             resorceryStatusLabel.Text = "";
@@ -78,6 +81,7 @@ namespace Resourcery
             resorceryOpenFileDialog.Filter = "Executable files|*.exe|DLL files|*.dll|All files|*.*";
             resorceryOpenFileDialog.ShowDialog();
             filename = resorceryOpenFileDialog.FileName;
+            //filename = "test.exe";
             if (filename.Length != 0)
             {
                 currentPath = Path.GetDirectoryName(filename);
@@ -99,12 +103,12 @@ namespace Resourcery
 
         private void expandTreeResourceMenuItem_Click(object sender, EventArgs e)
         {
-
+            resTreeView.ExpandAll();
         }
 
         private void collapseTreeResourceMenuItem_Click(object sender, EventArgs e)
         {
-
+            resTreeView.CollapseAll();
         }
 
 //-----------------------------------------------------------------------------
