@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Drawing;
 
 using Origami.Win32;
 
@@ -59,6 +60,8 @@ namespace Resourcery
             decoder = null;
             resources = null;
             resParser = null;
+            treeView.Nodes.Clear();
+            dataDisplay.Controls.Clear();
         }
 
         public void parseSource()
@@ -80,9 +83,10 @@ namespace Resourcery
         {
             foreach (ResourceNode node in nodes)
             {
+                String name = (node.id == -1) ? node.name : node.id.ToString();
                 if (node is ResourceDirectory)
                 {
-                    TreeNode treeNode = new TreeNode(node.id.ToString());
+                    TreeNode treeNode = new TreeNode(name);
                     parent.Nodes.Add(treeNode);
                     List<ResourceNode> children = ((ResourceDirectory)node).entries;
                     loadTreeNode(children, treeNode);
@@ -90,7 +94,7 @@ namespace Resourcery
                 else
                 {
                     ResourceData dataNode = (ResourceData)node;
-                    ResTreeNode resNode = new ResTreeNode(node.id.ToString(), dataNode);
+                    ResTreeNode resNode = new ResTreeNode(name, dataNode);
                     parent.Nodes.Add(resNode);
                 }
             }
@@ -117,19 +121,87 @@ namespace Resourcery
                 {
                     displayStringTable((StringTableEntry)dataNode);
                 }
+                else if (dataNode is BitmapEntry)
+                {
+                    displayBitmap((BitmapEntry)dataNode);
+                }
+                else
+                {
+                    displayRawData(dataNode);
+                }
             }
         }
 
-
-        void displayStringTable(StringTableEntry strtbl) 
+        TextBox setDisplayToText()
         {
             dataDisplay.Controls.Clear();
 
             TextBox dataText = new TextBox();
             dataText.Dock = DockStyle.Fill;
+            dataText.Font = new Font("Courier New", 10.0f);
+            dataText.BackColor = Color.PowderBlue;
             dataText.Multiline = true;
+            dataText.WordWrap = false;
+            dataText.ScrollBars = ScrollBars.Both;
+            dataText.ShortcutsEnabled = true;
             dataDisplay.Controls.Add(dataText);
+            return dataText;
+        }
 
+        void displayRawData(ResourceData node)
+        {
+            TextBox dataText = setDisplayToText();
+            byte[] data = node.dataBuf;
+
+            StringBuilder info = new StringBuilder();           //the entire text
+            StringBuilder ascii = new StringBuilder();          //the ascii chars at the end of each line
+            int i = 0;
+
+            for (; i < data.Length; )
+            {
+                if (i % 16 == 0)
+                {
+                    info.Append(i.ToString("X8") + ": ");         //address at start of each line
+                }
+                byte b = data[i];
+                info.Append(b.ToString("X2"));
+                info.Append(" ");
+                ascii.Append((b >= 0x20 && b <= 0x7E) ? ((char)b).ToString() : ".");
+                i++;
+                if (i % 16 == 0)
+                {
+                    info.AppendLine(ascii.ToString());              //add ascii chars to end of line
+                    ascii.Clear();
+                }
+            }
+            if (i % 16 != 0)
+            {
+                int remainder = (i % 16);
+                for (; remainder < 16; remainder++)
+                {
+                    info.Append("   ");
+
+                }
+                info.AppendLine(ascii.ToString());
+            }
+            dataText.Text = info.ToString();
+        }
+
+        void displayBitmap(BitmapEntry bitmapEntry)
+        {
+            dataDisplay.Controls.Clear();
+            PictureBox pbox = new PictureBox();
+            pbox.Image = bitmapEntry.bitmap;
+            pbox.Width = bitmapEntry.bitmap.Width;
+            pbox.Height = bitmapEntry.bitmap.Height;
+            //pbox.Location = new Point(50, 50);
+
+            dataDisplay.Controls.Add(pbox);
+        }
+
+        void displayStringTable(StringTableEntry strtbl) 
+        {
+            TextBox dataText = setDisplayToText();
             foreach (String str in strtbl.strings)
             {
                 dataText.Text += str;

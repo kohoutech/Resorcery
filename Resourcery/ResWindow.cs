@@ -81,7 +81,6 @@ namespace Resourcery
             resorceryOpenFileDialog.Filter = "Executable files|*.exe|DLL files|*.dll|All files|*.*";
             resorceryOpenFileDialog.ShowDialog();
             filename = resorceryOpenFileDialog.FileName;
-            //filename = "test.exe";
             if (filename.Length != 0)
             {
                 currentPath = Path.GetDirectoryName(filename);
@@ -92,6 +91,11 @@ namespace Resourcery
         private void openFileMenuItem_Click(object sender, EventArgs e)
         {
             showOpenFileDialog();
+        }
+
+        private void closeFileMenuItem_Click(object sender, EventArgs e)
+        {
+            closeFile();
         }
 
         private void exitFileMenuItem_Click(object sender, EventArgs e)
@@ -115,7 +119,7 @@ namespace Resourcery
 
         private void aboutHelpMenuItem_Click(object sender, EventArgs e)
         {
-            String msg = "Resorcery\nversion 1.0.0\n" + "\xA9 Origami Software 1998-2017\n" + "http://origami.kohoutech.com";
+            String msg = "Resourcery\nversion 1.0.0\n" + "\xA9 Origami Software 1998-2017\n" + "http://origami.kohoutech.com";
             MessageBox.Show(msg, "About");
 
         }

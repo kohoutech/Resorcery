@@ -21,6 +21,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Drawing;
+using System.IO;
 
 //https://en.wikibooks.org/wiki/X86_Disassembly/Windows_Executable_Files
 
@@ -51,12 +53,15 @@ namespace Origami.Win32
         {
             source.seek(resfileloc);
             rootNode = new ResourceDirectory(null, this, 0, 0);
-            Console.Out.WriteLine("resource parser done!");
             //rootNode.dump();
         }
 
-        String[] NODETYPES = {"?", "Cursor", "Bitmap", "Icon", "Menu", "Dialog", "String Table", "Font Directory", "Font",
-                                 "Accelerator", "User Data", "Message Table", "Cursor Group", "?", "Icon Group", "?", "Version"};
+        //https://msdn.microsoft.com/en-us/library/ms648009(v=vs.85).aspx
+        String[] NODETYPES = {
+            "?", "Cursor", "Bitmap", "Icon", "Menu", "Dialog", "String Table", "Font Directory", "Font",           //0-8
+            "Accelerator", "User Data", "Message Table", "Cursor Group", "?", "Icon Group", "?", "Version",        //9-16
+            "Dialog Include", "?", "Plug and Plug", "VXD", "Animated Cursor", "Animated Icon", "HTML", "Manifest"  //17-24
+        };
 
         public String getNodeType(int nodetype)
         {
@@ -86,7 +91,7 @@ namespace Origami.Win32
 
             if (_idName < 0x80000000)           //high bit not set -> id is a number
             {
-                id = (int)(_idName & 0x0000FFFF);
+                id = (int)_idName;
                 name = null;
                 if (level == 1)
                 {
@@ -96,8 +101,28 @@ namespace Origami.Win32
             else
             {                               //high bit is set -> id points to a name string
                 id = -1;
-                name = null;
+                name = getNameString(_idName - 0x80000000);
             }
+        }
+
+        public String getNameString(uint pos)
+        {
+            SourceFile source = parser.source;
+            uint curPos = source.getPos();
+            pos = (pos & 0x0000FFFF) + parser.resfileloc;
+            source.seek(pos);
+
+            int strLen = (int)source.getTwo();
+            pos += 2;
+            StringBuilder str = new StringBuilder(strLen);
+            for (int i = 0; i < strLen; i++)
+            {
+                uint ch = source.getTwo();
+                str.Append(Convert.ToChar(ch));
+                pos += 2;
+            }
+            source.seek(curPos);
+            return str.ToString();
         }
 
         public virtual void dump()
@@ -167,20 +192,26 @@ namespace Origami.Win32
 
     public class ResourceData : ResourceNode
     {
+        const int RT_BITMAP = 2;
         const int RT_STRING = 6;
 
         public uint dataPos;
         public uint size;
         uint codePage;
         uint reserved;
-        public uint[] dataBuf;
+        public byte[] dataBuf;
         public int nodeType;
 
+        //static method because the type of node we return is dependant on the parser's current node type
         public static ResourceData getDataEntry(ResourceNode parent, ResourceParser parser, int level, uint idName)
         {
             ResourceData result = null;
             switch (parser.curNodeType)
             {
+                case RT_BITMAP:
+                    result = new BitmapEntry(parent, parser, level, idName);
+                    break;
+
                 case RT_STRING:
                     result = new StringTableEntry(parent, parser, level, idName);
                     break;
@@ -217,6 +248,45 @@ namespace Origami.Win32
 
     }
 
+//- bitmap --------------------------------------------------------------
+
+    //https://en.wikipedia.org/wiki/BMP_file_format
+
+    public class BitmapEntry : ResourceData
+    {
+        public Bitmap bitmap;
+        
+        public BitmapEntry(ResourceNode _parent, ResourceParser _parser, int _level, uint _idName)
+            : base(_parent, _parser, _level, _idName)
+        {
+            //BITMAPFILEHEADER struct
+            byte[] hdr = { 0x42, 0x4D,                  //sig = BM
+                           0x00, 0x00, 0x00, 0x00,      //file size
+                           0x00, 0x00, 0x00, 0x00,      //reserved
+                           0x0E, 0x00, 0x00, 0x00 };    //ofsset to image bits = this header size + resource hdr size
+            
+            //update file size and bits offset fields
+            int filesize = 0x0E + dataBuf.Length;
+            byte[] sizebytes = BitConverter.GetBytes(filesize);
+            Array.Copy(sizebytes, 0, hdr, 2, 4);
+
+            byte[] hdrsizebytes = new byte[4];
+            Array.Copy(dataBuf, hdrsizebytes, 4);
+            int hdrsize = BitConverter.ToInt32(hdrsizebytes, 0) + 0x0E;
+            byte[] bitofsbytes = BitConverter.GetBytes(hdrsize);
+            Array.Copy(bitofsbytes, 0, hdr, 10, 4);
+
+            //join the file header to the resource data
+            byte[] filebytes = new byte[filesize];
+            Array.Copy(hdr, filebytes, 0x0E);
+            Array.Copy(dataBuf, 0, filebytes, 0x0E, dataBuf.Length);
+
+            //create a bitmap from the resource data
+            MemoryStream ms = new MemoryStream(filebytes);
+            bitmap = new Bitmap(ms);
+        }
+    }
+
 //- string table --------------------------------------------------------------
 
     public class StringTableEntry : ResourceData
@@ -242,7 +312,7 @@ namespace Origami.Win32
         public StringTableEntry(ResourceNode _parent, ResourceParser _parser, int _level, uint _idName)
             : base(_parent, _parser, _level, _idName)
         {
-            bundleNum = parent.id * 16;
+            bundleNum = (parent.id - 1) * 16;
             strings = new List<string>(16);
             int strpos = 0;
             while (strpos < dataBuf.Length)

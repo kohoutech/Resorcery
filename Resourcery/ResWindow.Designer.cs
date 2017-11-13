@@ -45,6 +45,7 @@
             this.resTreeView = new System.Windows.Forms.TreeView();
             this.resDataDisplay = new System.Windows.Forms.Panel();
             this.resorceryOpenFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.closeFileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resorceryMenuStrip.SuspendLayout();
             this.resorceryStatusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -70,6 +71,7 @@
             this.fileMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.fileMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openFileMenuItem,
+            this.closeFileMenuItem,
             this.toolStripSeparator,
             this.exitFileMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
@@ -83,19 +85,19 @@
             this.openFileMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openFileMenuItem.Name = "openFileMenuItem";
             this.openFileMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openFileMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.openFileMenuItem.Size = new System.Drawing.Size(152, 22);
             this.openFileMenuItem.Text = "&Open";
             this.openFileMenuItem.Click += new System.EventHandler(this.openFileMenuItem_Click);
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(143, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(149, 6);
             // 
             // exitFileMenuItem
             // 
             this.exitFileMenuItem.Name = "exitFileMenuItem";
-            this.exitFileMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.exitFileMenuItem.Size = new System.Drawing.Size(152, 22);
             this.exitFileMenuItem.Text = "E&xit";
             this.exitFileMenuItem.Click += new System.EventHandler(this.exitFileMenuItem_Click);
             // 
@@ -164,6 +166,7 @@
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer1.Location = new System.Drawing.Point(0, 24);
             this.splitContainer1.Name = "splitContainer1";
             // 
@@ -189,6 +192,7 @@
             // 
             // resDataDisplay
             // 
+            this.resDataDisplay.AutoScroll = true;
             this.resDataDisplay.BackColor = System.Drawing.SystemColors.Control;
             this.resDataDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
             this.resDataDisplay.Location = new System.Drawing.Point(0, 0);
@@ -200,6 +204,13 @@
             // 
             this.resorceryOpenFileDialog.FileName = "openFileDialog1";
             // 
+            // closeFileMenuItem
+            // 
+            this.closeFileMenuItem.Name = "closeFileMenuItem";
+            this.closeFileMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.closeFileMenuItem.Text = "&Close";
+            this.closeFileMenuItem.Click += new System.EventHandler(this.closeFileMenuItem_Click);
+            // 
             // ResWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -208,6 +219,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.resorceryStatusStrip);
             this.Controls.Add(this.resorceryMenuStrip);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.resorceryMenuStrip;
             this.Name = "ResWindow";
             this.Text = "Resourcery";
@@ -242,6 +254,7 @@
         private System.Windows.Forms.ToolStripMenuItem aboutHelpMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel resorceryStatusLabel;
         private System.Windows.Forms.OpenFileDialog resorceryOpenFileDialog;
+        private System.Windows.Forms.ToolStripMenuItem closeFileMenuItem;
     }
 }
 
