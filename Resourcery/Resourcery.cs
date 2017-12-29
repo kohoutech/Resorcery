@@ -202,10 +202,12 @@ namespace Resourcery
         void displayStringTable(StringTableEntry strtbl) 
         {
             TextBox dataText = setDisplayToText();
+            int i = strtbl.bundleNum;
             foreach (String str in strtbl.strings)
             {
-                dataText.Text += str;
+                dataText.Text += (i.ToString("X4") + " : " + str);
                 dataText.Text += "\r\n";
+                i++;
             }
         }
     }
