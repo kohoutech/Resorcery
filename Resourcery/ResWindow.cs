@@ -1,6 +1,6 @@
 ﻿/* ----------------------------------------------------------------------------
 Resourcery : an executable file resource editor 
-Copyright (C) 1998-2017  George E Greaney
+Copyright (C) 1998-2018  George E Greaney
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -45,42 +45,42 @@ namespace Resourcery
             currentPath = null;
         }
 
-//-----------------------------------------------------------------------------
+//- file menu -----------------------------------------------------------------
 
         public void openFile(String filename)
         {
             resorceryStatusLabel.Text = "Loading...";
             closeFile();
-            res.loadSourceFile(filename);
-            res.parseSource();
-            res.parseResource();
+            res.openFile(filename);
+            res.ParseData();
             res.loadTreeView();
 
-            Text = "Resourcery [" + filename + "]";
+            this.Text = "Resourcery [" + filename + "]";
             resorceryStatusLabel.Text = "";
         }
 
         public void closeFile()
         {
-            res.close();
+            res.closeFile();
         }
 
         private void showOpenFileDialog()
         {
             String filename = "";
-            if (currentPath != null)
-            {
-                resorceryOpenFileDialog.InitialDirectory = currentPath;
-            }
-            else
-            {
-                resorceryOpenFileDialog.InitialDirectory = Application.StartupPath;
-            }
-            resorceryOpenFileDialog.FileName = "";
-            resorceryOpenFileDialog.DefaultExt = "*.exe";
-            resorceryOpenFileDialog.Filter = "Executable files|*.exe|DLL files|*.dll|All files|*.*";
-            resorceryOpenFileDialog.ShowDialog();
-            filename = resorceryOpenFileDialog.FileName;
+            //if (currentPath != null)
+            //{
+            //    resorceryOpenFileDialog.InitialDirectory = currentPath;
+            //}
+            //else
+            //{
+            //    resorceryOpenFileDialog.InitialDirectory = Application.StartupPath;
+            //}
+            //resorceryOpenFileDialog.FileName = "";
+            //resorceryOpenFileDialog.DefaultExt = "*.exe";
+            //resorceryOpenFileDialog.Filter = "Executable files|*.exe|DLL files|*.dll|All files|*.*";
+            //resorceryOpenFileDialog.ShowDialog();
+            //filename = resorceryOpenFileDialog.FileName;
+            filename = "test.exe";
             if (filename.Length != 0)
             {
                 currentPath = Path.GetDirectoryName(filename);
@@ -103,7 +103,7 @@ namespace Resourcery
             Application.Exit();
         }
 
-//-----------------------------------------------------------------------------
+//- resource menu -------------------------------------------------------------
 
         private void expandTreeResourceMenuItem_Click(object sender, EventArgs e)
         {
@@ -115,13 +115,15 @@ namespace Resourcery
             resTreeView.CollapseAll();
         }
 
-//-----------------------------------------------------------------------------
+//- help menu -----------------------------------------------------------------
 
         private void aboutHelpMenuItem_Click(object sender, EventArgs e)
         {
-            String msg = "Resourcery\nversion 1.0.1\n" + "\xA9 Origami Software 1998-2017\n" + "http://origami.kohoutech.com";
+            String msg = "Resourcery\nversion 1.1.0\n" + "\xA9 Origami Software 1998-2018\n" + "http://origami.kohoutech.com";
             MessageBox.Show(msg, "About");
 
         }
     }
 }
+
+//Console.WriteLine("there's no sun in the shadow of the wizard");
