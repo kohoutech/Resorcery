@@ -45,6 +45,18 @@ namespace Resourcery
             currentPath = null;
         }
 
+        private void resDataDisplay_Resize(object sender, EventArgs e)
+        {
+            if (res.pbox != null)       //keep any images being displayed centered in the data window
+            {
+                int x = (resDataDisplay.Width - res.pbox.Width) / 2;
+                int y = (resDataDisplay.Height - res.pbox.Height) / 2;
+                x = (x > 0) ? x : 0;
+                y = (y > 0) ? y : 0;
+                res.pbox.Location = new Point(x, y);
+            }
+        }
+
 //- file menu -----------------------------------------------------------------
 
         public void openFile(String filename)
@@ -67,20 +79,20 @@ namespace Resourcery
         private void showOpenFileDialog()
         {
             String filename = "";
-            //if (currentPath != null)
-            //{
-            //    resorceryOpenFileDialog.InitialDirectory = currentPath;
-            //}
-            //else
-            //{
-            //    resorceryOpenFileDialog.InitialDirectory = Application.StartupPath;
-            //}
-            //resorceryOpenFileDialog.FileName = "";
-            //resorceryOpenFileDialog.DefaultExt = "*.exe";
-            //resorceryOpenFileDialog.Filter = "Executable files|*.exe|DLL files|*.dll|All files|*.*";
-            //resorceryOpenFileDialog.ShowDialog();
-            //filename = resorceryOpenFileDialog.FileName;
-            filename = "test.exe";
+            if (currentPath != null)
+            {
+                resorceryOpenFileDialog.InitialDirectory = currentPath;
+            }
+            else
+            {
+                resorceryOpenFileDialog.InitialDirectory = Application.StartupPath;
+            }
+            resorceryOpenFileDialog.FileName = "";
+            resorceryOpenFileDialog.DefaultExt = "*.exe";
+            resorceryOpenFileDialog.Filter = "Executable files|*.exe|DLL files|*.dll|All files|*.*";
+            resorceryOpenFileDialog.ShowDialog();
+            filename = resorceryOpenFileDialog.FileName;
+            //filename = "test.exe";
             if (filename.Length != 0)
             {
                 currentPath = Path.GetDirectoryName(filename);

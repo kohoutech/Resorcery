@@ -206,6 +206,7 @@
             this.resDataDisplay.Name = "resDataDisplay";
             this.resDataDisplay.Size = new System.Drawing.Size(286, 365);
             this.resDataDisplay.TabIndex = 0;
+            this.resDataDisplay.Resize += new System.EventHandler(this.resDataDisplay_Resize);
             // 
             // resorceryOpenFileDialog
             // 
