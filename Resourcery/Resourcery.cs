@@ -226,6 +226,10 @@ namespace Resourcery
                 {
                     displayBitmap(itemNode);
                 }
+                else if (dataNode is ResAccelerator)
+                {
+                    displayAccelerator(itemNode);
+                }
                 else
                 {
                 displayRawData(itemNode);
@@ -321,6 +325,18 @@ namespace Resourcery
                 i++;
             }
         }
+
+        void displayAccelerator(ResourceItem item)
+        {
+            TextBox dataText = setDisplayToText();
+            List<String> strtbl = (List<String>)item.item;
+            foreach (String str in strtbl)
+            {
+                dataText.Text += str;
+                dataText.Text += "\r\n";
+            }
+        }
+
     }
 
 //-----------------------------------------------------------------------------

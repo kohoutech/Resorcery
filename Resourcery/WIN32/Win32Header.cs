@@ -143,4 +143,17 @@ namespace Origami.Win32
             size = _size;
         }
     }
+
+//- obj sym table ------------------------------------------------------------
+
+    public class ObjSymbolRecord
+    {
+        String name;
+        uint value;
+        uint sectionNum;
+        uint type;
+        uint storageClass;
+        uint auxSymbolCount;
+    }
+
 }

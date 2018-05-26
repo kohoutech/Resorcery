@@ -23,7 +23,6 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.IO;
-using MachFive.WIN32;
 
 //https://en.wikibooks.org/wiki/X86_Disassembly/Windows_Executable_Files
 //https://msdn.microsoft.com/en-us/library/windows/desktop/ms680547(v=vs.85).aspx#the_.rsrc_section
@@ -670,6 +669,17 @@ namespace Origami.Win32
             : base(id, name)
         {
         }
+
+        public override object parseRawData(byte[] dataBuf)
+        {
+            List<string> acceltbl = new List<string>();
+            int pos = 0;
+            while (pos < dataBuf.Length)
+            {
+                pos++;
+            }
+            return acceltbl;
+        }
     }
 
 //- bitmap --------------------------------------------------------------
@@ -683,6 +693,7 @@ namespace Origami.Win32
         public ResBitmap(uint id, String name)
             : base(id, name)
         {
+            bitmap = null;
         }
 
         public override object parseRawData(byte[] dataBuf)
