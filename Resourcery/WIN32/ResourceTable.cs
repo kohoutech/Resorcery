@@ -676,7 +676,12 @@ namespace Origami.Win32
             int pos = 0;
             while (pos < dataBuf.Length)
             {
-                pos++;
+                uint flags = ((uint)dataBuf[pos + 1] * 256) + dataBuf[pos];
+                uint ansi = ((uint)dataBuf[pos + 3] * 256) + dataBuf[pos + 2];
+                uint id = ((uint)dataBuf[pos + 5] * 256) + dataBuf[pos + 4];
+                String accstr = "flags = " + flags.ToString("X4") + " ansi = " + ansi.ToString("X4") + " id = " + id.ToString("X4");
+                acceltbl.Add(accstr);
+                pos += 8;
             }
             return acceltbl;
         }
@@ -799,11 +804,47 @@ namespace Origami.Win32
 
     public class ResIcon : ResourceData
     {
-                public ResIcon(uint id, String name)
+        public Bitmap bitmap;
+
+        public ResIcon(uint id, String name)
             : base(id, name)
         {
+            bitmap = null;
         }
 
+        public override object parseRawData(byte[] dataBuf)
+        {
+            //the bitmap resource data is the same as in a bitmap file, except the header has been removed
+            //so we build a header, prepend it to the front of our resource data
+            //and create a bitmap from the total data, as if we read it from a file
+
+            //BITMAPFILEHEADER struct
+            byte[] hdr = { 0x42, 0x4D,                  //sig = BM
+                           0x00, 0x00, 0x00, 0x00,      //file size
+                           0x00, 0x00, 0x00, 0x00,      //reserved
+                           0x0E, 0x00, 0x00, 0x00 };    //offset to image bits = this header size + resource hdr size
+
+            //update file size and bits offset fields
+            int filesize = 0x0E + dataBuf.Length;
+            byte[] sizebytes = BitConverter.GetBytes(filesize);
+            Array.Copy(sizebytes, 0, hdr, 2, 4);
+
+            byte[] hdrsizebytes = new byte[4];
+            Array.Copy(dataBuf, hdrsizebytes, 4);
+            int hdrsize = BitConverter.ToInt32(hdrsizebytes, 0) + 0x0E;
+            byte[] bitofsbytes = BitConverter.GetBytes(hdrsize);
+            Array.Copy(bitofsbytes, 0, hdr, 10, 4);
+
+            //join the file header to the resource data
+            byte[] filebytes = new byte[filesize];
+            Array.Copy(hdr, filebytes, 0x0E);
+            Array.Copy(dataBuf, 0, filebytes, 0x0E, dataBuf.Length);
+
+            //create a bitmap from the resource data
+            MemoryStream ms = new MemoryStream(filebytes);
+            bitmap = new Bitmap(ms);
+            return bitmap;
+        }
     }
 
 //-----------------------------------------------------------------------------

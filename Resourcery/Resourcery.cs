@@ -222,7 +222,7 @@ namespace Resourcery
                 {
                     displayStringTable(itemNode);
                 }
-                else if (dataNode is ResBitmap)
+                else if ((dataNode is ResBitmap) || (dataNode is ResCursor))
                 {
                     displayBitmap(itemNode);
                 }
