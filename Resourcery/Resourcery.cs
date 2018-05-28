@@ -55,7 +55,7 @@ namespace Resourcery
             resources = exeFile.resourceTable;
         }
 
-        internal void ParseData()
+        internal void parseData()
         {
             resources.parseData();   
         }
@@ -184,7 +184,6 @@ namespace Resourcery
                 {
                     loadTreeNode(igrp, treeNode);
                 }
-
             }
             if (resources.versions.Count > 0)
             {
@@ -216,13 +215,13 @@ namespace Resourcery
             {
                 ResTreeNode resNode = (ResTreeNode)node;
                 ResourceData dataNode = resNode.dataNode;
-                ResourceItem itemNode = dataNode.getLanguageItem(resNode.lang);
+                ResourceItem itemNode = dataNode.getItem(resNode.lang);
                 pbox = null;
                 if (dataNode is ResStringTable)
                 {
                     displayStringTable(itemNode);
                 }
-                else if ((dataNode is ResBitmap) || (dataNode is ResCursor))
+                else if (dataNode is ResBitmap) 
                 {
                     displayBitmap(itemNode);
                 }

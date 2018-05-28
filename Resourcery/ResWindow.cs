@@ -64,7 +64,7 @@ namespace Resourcery
             resorceryStatusLabel.Text = "Loading...";
             closeFile();
             res.openFile(filename);
-            res.ParseData();
+            res.parseData();
             res.loadTreeView();
 
             this.Text = "Resourcery [" + filename + "]";
@@ -79,20 +79,20 @@ namespace Resourcery
         private void showOpenFileDialog()
         {
             String filename = "";
-            if (currentPath != null)
-            {
-                resorceryOpenFileDialog.InitialDirectory = currentPath;
-            }
-            else
-            {
-                resorceryOpenFileDialog.InitialDirectory = Application.StartupPath;
-            }
-            resorceryOpenFileDialog.FileName = "";
-            resorceryOpenFileDialog.DefaultExt = "*.exe";
-            resorceryOpenFileDialog.Filter = "Executable files|*.exe|DLL files|*.dll|All files|*.*";
-            resorceryOpenFileDialog.ShowDialog();
-            filename = resorceryOpenFileDialog.FileName;
-            //filename = "test.exe";
+            //if (currentPath != null)
+            //{
+            //    resorceryOpenFileDialog.InitialDirectory = currentPath;
+            //}
+            //else
+            //{
+            //    resorceryOpenFileDialog.InitialDirectory = Application.StartupPath;
+            //}
+            //resorceryOpenFileDialog.FileName = "";
+            //resorceryOpenFileDialog.DefaultExt = "*.exe";
+            //resorceryOpenFileDialog.Filter = "Executable files|*.exe|DLL files|*.dll|All files|*.*";
+            //resorceryOpenFileDialog.ShowDialog();
+            //filename = resorceryOpenFileDialog.FileName;
+            filename = "test.exe";
             if (filename.Length != 0)
             {
                 currentPath = Path.GetDirectoryName(filename);

@@ -29,7 +29,7 @@ namespace Origami.Win32
 
     public class PEHeader
     {
-        public uint pesig;
+        //public uint pesig;
         public uint machine;
         public int sectionCount;
         public uint timeStamp;
