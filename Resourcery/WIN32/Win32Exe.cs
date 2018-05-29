@@ -126,6 +126,10 @@ namespace Origami.Win32
 
             source.seek(dosHeader.e_lfanew);
             uint pesig = source.getFour();
+            if (pesig != 0x00004550)
+            {
+                throw new Win32Exception("this is not a valid win32 executable file");
+            }
 
             peHeader.machine = source.getTwo();
             peHeader.sectionCount = (int)source.getTwo();

@@ -97,8 +97,9 @@ namespace Origami.Win32
 
             SourceFile source = new SourceFile(data);   //source file pts to resource table's raw data buf
             parseResourceDirectory(source, 0);          //start on level 0
-            parseCursorGroups();
-            parseIconGroups();
+
+            parseCursorGroups();        //having stored icon & cursor resource data during the parse
+            parseIconGroups();          //now create icon & cursor list entries from this data and the icon/cursor group entries
         }
 
         //recursively descend through resource directory structure
@@ -178,11 +179,8 @@ namespace Origami.Win32
             switch (restype)
             {
                 case 1:
-                    addCursor(resid, resname, reslang, resdata);
-
-                    //ResData curdata = new ResData(resid, resname, reslang, resdata);
-                    //cursorItems.Add(curdata);                    
-                    getDataItem(cursors, resid, resname).getItem(reslang).dataBuf = resdata;
+                    ResData curdata = new ResData(resid, resname, reslang, resdata);
+                    cursorItems.Add(curdata);                    
                     break;
 
                 case 2:
@@ -192,11 +190,8 @@ namespace Origami.Win32
                     break;
 
                 case 3:
-                    addIcon(resid, resname, reslang, resdata);
-                    
-                    //ResData icondata = new ResData(resid, resname, reslang, resdata);
-                    //iconItems.Add(icondata);
-                    getDataItem(icons, resid, resname).getItem(reslang).dataBuf = resdata;
+                    ResData icondata = new ResData(resid, resname, reslang, resdata);
+                    iconItems.Add(icondata);                    
                     break;
 
                 case 4:
@@ -241,13 +236,13 @@ namespace Origami.Win32
                     break;
 
                 case 12:
-                    ResCursorGroupData cg = ResCursorGroupData.parseData(resdata);
+                    ResImageGroupData cg = ResImageGroupData.parseData(resdata);
                     addCursorGroup(resid, resname, reslang, cg);
                     getDataItem(cursorGroups, resid, resname).getItem(reslang).dataBuf = resdata;
                     break;
 
                 case 14:
-                    ResIconGroupData ig = ResIconGroupData.parseData(resdata);
+                    ResImageGroupData ig = ResImageGroupData.parseData(resdata);
                     addIconGroup(resid, resname, reslang, ig);
                     getDataItem(iconGroups, resid, resname).getItem(reslang).dataBuf = resdata;
                     break;
@@ -267,32 +262,203 @@ namespace Origami.Win32
             }
         }
 
-        private void parseCursorGroups()
+//- icon loading --------------------------------------------------------------
+
+        //we create an .ico file in memory for icon resources
+        private byte[] buildIconFile(ResImageGroupData idata)
         {
-            throw new NotImplementedException();
+            //build .ico file header
+            byte[] hdrbytes = { 0, 0, 1, 0, 0, 0 };
+            hdrbytes[4] = (byte)(idata.entries.Count % 0x100);
+            hdrbytes[5] = (byte)(idata.entries.Count / 0x100);
+
+            //build .ico data directory
+            int datapos = 6 + (0x10 * idata.entries.Count);
+            byte[] dirbytes = new byte[0x10 * idata.entries.Count];
+            int dirpos = 0;
+            for (int i = 0; i < idata.entries.Count; i++)
+            {
+                ResImageGroupDataEntry ientry = idata.entries[i];
+                dirbytes[dirpos++] = (byte)ientry.bWidth;
+                dirbytes[dirpos++] = (byte)ientry.bHeight;
+                dirbytes[dirpos++] = (byte)ientry.bColorCount;
+                dirbytes[dirpos++] = 0;
+                dirbytes[dirpos++] = (byte)(ientry.wPlanes % 0x100);
+                dirbytes[dirpos++] = (byte)(ientry.wPlanes / 0x100);
+                dirbytes[dirpos++] = (byte)(ientry.wBitCount % 0x100);
+                dirbytes[dirpos++] = (byte)(ientry.wBitCount / 0x100);
+                byte[] sizebytes = BitConverter.GetBytes(ientry.dwBytesInRes);
+                Array.Copy(sizebytes, 0, dirbytes, dirpos, 4);
+                byte[] posbytes = BitConverter.GetBytes(datapos);
+                Array.Copy(posbytes, 0, dirbytes, dirpos + 4, 4);
+                dirpos += 8;
+                datapos += (int)ientry.dwBytesInRes;
+            }
+
+            byte[] iconbytes = new byte[datapos];                       //total .ico data buf
+            Array.Copy(hdrbytes, 0, iconbytes, 0, 6);
+            Array.Copy(dirbytes, 0, iconbytes, 6, dirbytes.Length);     //copy the .ico header to it
+
+            //append icon data for each icon in directory
+            datapos = 6 + (0x10 * idata.entries.Count);
+            ResData image = null;
+            for (int i = 0; i < idata.entries.Count; i++)
+            {
+                ResImageGroupDataEntry ientry = idata.entries[i];
+                foreach (ResData imagedata in iconItems)                 //find the matching icon data
+                {
+                    if (imagedata.id == ientry.nID)
+                    {
+                        image = imagedata;
+                        break;
+                    }
+                }
+                if (image != null)
+                {
+                    Array.Copy(image.data, 0, iconbytes, datapos, image.data.Length);     //and add it to the data buf
+                    datapos += image.data.Length;
+                }
+            }
+            return iconbytes;
         }
 
+        private void createIconResources(ResImageGroupData idata, byte[] iconbytes)
+        {
+            //now we've re-created the .ico file as a memory stream
+            //extract each icon from it by the icon dimensions from the data directory
+            MemoryStream ms = new MemoryStream(iconbytes);
+            ResData image = null;
+            for (int i = 0; i < idata.entries.Count; i++)
+            {
+                ResImageGroupDataEntry ientry = idata.entries[i];
+                ms.Position = 0;
+                Icon iconRes = new Icon(ms, (int)ientry.bWidth, (int)ientry.bHeight);       //get the icon
+                ientry.image = iconRes;                                                      //link it to this res obj
+                foreach (ResData imagedata in iconItems)
+                {
+                    if (imagedata.id == ientry.nID)
+                    {
+                        image = imagedata;
+                        break;
+                    }
+                }
+                //and add it to the ICON resource list as well
+                if (image != null)
+                {
+                    addIcon(image.id, image.name, image.lang, iconRes);
+                    getDataItem(icons, image.id, image.name).getItem(image.lang).dataBuf = image.data;
+                }
+            }
+        }
+
+        //like bmp files (see below) we build an .ico file in memory, and then create an Icon obj from it
+        //the complication here is (unlike bitmap resources) the data is split between ICON and ICONGROUP resources
+        //so we've stored all the ICON resource data while parsing the resource data & now join head to body
         private void parseIconGroups()
         {
             foreach (ResIconGroup ig in iconGroups)
             {
                 foreach (ResourceItem item in ig.items)
                 {
-                    ResIconGroupData idata = (ResIconGroupData)item.item;
-                    byte[] hdrbytes = { 0, 0, 1, 0, 0, 0 };
-                    hdrbytes[4] = (byte)(idata.entries.Count % 0x100);
-                    hdrbytes[5] = (byte)(idata.entries.Count / 0x100);
-                    uint pos = 0;
-                    for (int i = 0; i < idata.entries.Count; i++)
-                    {
-                        ResIconGroupDataEntry ientry = idata.entries[i];
-                        foreach (ResData icondata in iconItems)
-                        {
-                        }
-                    }                    
-                    //
+                    ResImageGroupData idata = (ResImageGroupData)item.item;     //this contains the .ico file header data
+                    byte[] iconbytes = buildIconFile(idata);                    //build .ico file from header & saved icon data
+                    createIconResources(idata, iconbytes);                      //extract images from .ico file & add to icon list
                 }
             }
+            icons.Sort();
+        }
+
+//- cursor loading ------------------------------------------------------------
+
+        //the C# Cursor class is limited for displaying as an image, so we use an Icon obj instead
+        //we create an .ico file in memory for cursor resources
+        private byte[] buildCursorFile(ResImageGroupData idata, int entrynum)
+        {
+            //build .ico file header
+            byte[] hdrbytes = { 0, 0, 1, 0, 1, 0 };
+
+            //build .ico data directory for a single cursor resource
+            int datapos = 0x16;
+            byte[] dirbytes = new byte[0x10];
+            int dirpos = 0;
+            ResImageGroupDataEntry ientry = idata.entries[entrynum];
+            dirbytes[dirpos++] = (byte)ientry.bWidth;
+            dirbytes[dirpos++] = (byte)ientry.bWidth;           //square icon
+            dirbytes[dirpos++] = 2;                             //monochrome
+            dirbytes[dirpos++] = 0;
+            dirbytes[dirpos++] = 1;
+            dirbytes[dirpos++] = 0;
+            dirbytes[dirpos++] = 1;
+            dirbytes[dirpos++] = 0;
+            uint bsize = ientry.dwBytesInRes - 4;
+            byte[] sizebytes = BitConverter.GetBytes(bsize);
+            Array.Copy(sizebytes, 0, dirbytes, dirpos, 4);
+            byte[] posbytes = BitConverter.GetBytes(datapos);
+            Array.Copy(posbytes, 0, dirbytes, dirpos + 4, 4);
+            dirpos += 8;
+            datapos += (int)ientry.dwBytesInRes;            
+
+            byte[] cursorbytes = new byte[datapos];                       //total .cur data buf
+            Array.Copy(hdrbytes, 0, cursorbytes, 0, 6);
+            Array.Copy(dirbytes, 0, cursorbytes, 6, 0x10);                //copy the .cur header to it
+
+            //append cursor data for each icon in directory
+            ResData image = null;
+            foreach (ResData imagedata in cursorItems)                 //find the matching cursor data
+            {
+                if (imagedata.id == ientry.nID)
+                {
+                    image = imagedata;
+                    break;
+                }
+            }
+            if (image != null)
+            {
+                Array.Copy(image.data, 4, cursorbytes, 0x16, image.data.Length - 4);     //and add it to the data buf, skip the hotspot bytes
+            }
+            return cursorbytes;
+        }
+
+        private void createCursorResources(ResImageGroupData idata, byte[] cursorbytes, int entrynum)
+        {
+            //get the cursor image from the .ico file we've created in memory
+            MemoryStream ms = new MemoryStream(cursorbytes);
+            ms.Position = 0;
+            Icon curRes = new Icon(ms);                                     //get the cursor
+            ResImageGroupDataEntry ientry = idata.entries[entrynum];
+            ientry.image = curRes;                                          //link it to this res obj
+            ResData image = null;
+            foreach (ResData curdata in cursorItems)
+            {
+                if (curdata.id == ientry.nID)
+                {
+                    image = curdata;
+                    break;
+                }
+            }
+            //and add it to the CUSROR resource list as well
+            if (image != null)
+            {
+                addCursor(image.id, image.name, image.lang, curRes);
+                getDataItem(cursors, image.id, image.name).getItem(image.lang).dataBuf = image.data;
+            }
+        }
+
+        private void parseCursorGroups()
+        {
+            foreach (ResCursorGroup cg in cursorGroups)
+            {
+                foreach (ResourceItem item in cg.items)
+                {
+                    ResImageGroupData idata = (ResImageGroupData)item.item;     //this contains the .cur file header data
+                    for (int i = 0; i < idata.entries.Count; i++)
+                    {
+                        byte[] cursorbytes = buildCursorFile(idata, i);         //build .ico file from header & saved cursor data
+                        createCursorResources(idata, cursorbytes, i);           //extract images from .ico file & add to icon list
+                    }
+                }
+            }
+            cursors.Sort();
         }
 
 //- storing out ---------------------------------------------------------------
@@ -336,7 +502,7 @@ namespace Origami.Win32
 
 //- resource CRUD -------------------------------------------------------------
 
-        public void addCursor(uint id, String name, uint language, byte[] data)
+        public void addCursor(uint id, String name, uint language, Icon cursor)
         {
             ResCursor cur = (ResCursor)getDataItem(cursors, id, name);
             if (cur == null)
@@ -344,7 +510,7 @@ namespace Origami.Win32
                 cur = new ResCursor(id, name);
                 cursors.Add(cur);
             }
-            cur.addItem(language, data);
+            cur.addItem(language, cursor);
         }
 
         public void deleteCursor(uint id, String name, uint language)
@@ -364,7 +530,7 @@ namespace Origami.Win32
 
 //-----------------------------------------------------------------------------
 
-        public void addCursorGroup(uint id, String name, uint language, ResCursorGroupData item)
+        public void addCursorGroup(uint id, String name, uint language, ResImageGroupData item)
         {
             ResCursorGroup cg = (ResCursorGroup)getDataItem(cursorGroups, id, name);
             if (cg == null)
@@ -420,7 +586,7 @@ namespace Origami.Win32
 
 //-----------------------------------------------------------------------------
 
-        public void addIcon(uint id, String name, uint language, byte[] data)
+        public void addIcon(uint id, String name, uint language, Icon icon)
         {
             ResIcon resicon = (ResIcon)getDataItem(icons, id, name);
             if (resicon == null)
@@ -428,7 +594,7 @@ namespace Origami.Win32
                 resicon = new ResIcon(id, name);
                 icons.Add(resicon);
             }
-            resicon.addItem(language, data);
+            resicon.addItem(language, icon);
         }
 
         public void deleteIcon(uint id, String name, uint language)
@@ -448,7 +614,7 @@ namespace Origami.Win32
 
 //-----------------------------------------------------------------------------
 
-        public void addIconGroup(uint id, String name, uint language, ResIconGroupData item)
+        public void addIconGroup(uint id, String name, uint language, ResImageGroupData item)
         {
             ResIconGroup ig = (ResIconGroup)getDataItem(iconGroups, id, name);
             if (ig == null)
@@ -704,7 +870,7 @@ namespace Origami.Win32
 //-----------------------------------------------------------------------------
 
     //base class - this is at the name/id level of the res table tree & has a list of resource items
-    public class ResourceData 
+    public class ResourceData : IComparable<ResourceData>
     {
         public uint id;
         public String name;
@@ -759,6 +925,11 @@ namespace Origami.Win32
                 langs.Add(item.lang);
             }
             return langs;
+        }
+
+        public int CompareTo(ResourceData that)
+        {
+            return this.id.CompareTo(that.id);
         }
     }
 
@@ -942,45 +1113,6 @@ namespace Origami.Win32
         {
             icon = null;
         }
-
-        //public override object parseRawData(byte[] dataBuf)
-        //{
-        //    //the bitmap resource data is the same as in a bitmap file, except the header has been removed
-        //    //so we build a header, prepend it to the front of our resource data
-        //    //and create a bitmap from the total data, as if we read it from a file
-
-        //    //BITMAPFILEHEADER struct
-        //    byte[] hdr = { 0x42, 0x4D,                  //sig = BM
-        //                   0x00, 0x00, 0x00, 0x00,      //file size
-        //                   0x00, 0x00, 0x00, 0x00,      //reserved
-        //                   0x0E, 0x00, 0x00, 0x00 };    //offset to image bits = this header size + resource hdr size
-
-        //    //update file size and bits offset fields
-        //    int filesize = 0x0E + dataBuf.Length;
-        //    byte[] sizebytes = BitConverter.GetBytes(filesize);
-        //    Array.Copy(sizebytes, 0, hdr, 2, 4);
-
-        //    byte[] hdrsizebytes = new byte[4];
-        //    Array.Copy(dataBuf, hdrsizebytes, 4);
-        //    int hdrsize = BitConverter.ToInt32(hdrsizebytes, 0) + 0x0E;
-        //    byte[] bitofsbytes = BitConverter.GetBytes(hdrsize);
-        //    Array.Copy(bitofsbytes, 0, hdr, 10, 4);
-
-        //    //join the file header to the resource data
-        //    byte[] filebytes = new byte[filesize];
-        //    Array.Copy(hdr, filebytes, 0x0E);
-        //    Array.Copy(dataBuf, 0, filebytes, 0x0E, dataBuf.Length);
-
-        //    //create a bitmap from the resource data
-        //    MemoryStream ms = new MemoryStream(filebytes);
-        //    icon = new Icon(ms);
-        //    return icon;
-        //}
-
-        public static Icon parseData(byte[] resdata)
-        {
-            throw new NotImplementedException();
-        }
     }
 
 //-----------------------------------------------------------------------------
@@ -993,40 +1125,41 @@ namespace Origami.Win32
         }
     }
 
-    public class ResIconGroupData
+    public class ResImageGroupData
     {
-        public List<ResIconGroupDataEntry> entries;
+        public List<ResImageGroupDataEntry> entries;
 
-        public static ResIconGroupData parseData(byte[] resdata)
+        public static ResImageGroupData parseData(byte[] resdata)
         {
-            ResIconGroupData igdata = new ResIconGroupData();
+            ResImageGroupData igdata = new ResImageGroupData();
             SourceFile src = new SourceFile(resdata);
             uint res = src.getTwo();                
             uint type = src.getTwo();
             int count = (int)src.getTwo();
-            igdata.entries = new List<ResIconGroupDataEntry>(count);
+            igdata.entries = new List<ResImageGroupDataEntry>(count);
             for (int i = 0; i < count; i++)
             {
-                ResIconGroupDataEntry igentry = ResIconGroupDataEntry.parseData(src);
+                ResImageGroupDataEntry igentry = ResImageGroupDataEntry.parseData(src);
                 igdata.entries.Add(igentry);
             }
             return igdata;
         }
     }
 
-    public class ResIconGroupDataEntry
+    public class ResImageGroupDataEntry
     {
-        uint bWidth;               // Width, in pixels, of the image
-        uint bHeight;              // Height, in pixels, of the image
-        uint bColorCount;          // Number of colors in image (0 if >=8bpp)
-        uint wPlanes;              // Color Planes
-        uint wBitCount;            // Bits per pixel
-        uint dwBytesInRes;         // how many bytes in this resource?
-        uint nID;                  // the ID
+        public uint bWidth;               // Width, in pixels, of the image
+        public uint bHeight;              // Height, in pixels, of the image
+        public uint bColorCount;          // Number of colors in image (0 if >=8bpp)
+        public uint wPlanes;              // Color Planes
+        public uint wBitCount;            // Bits per pixel
+        public uint dwBytesInRes;         // how many bytes in this resource?
+        public uint nID;                  // the ID
+        public Icon image;
 
-        public static ResIconGroupDataEntry parseData(SourceFile src)
+        public static ResImageGroupDataEntry parseData(SourceFile src)
         {
-            ResIconGroupDataEntry cgdata = new ResIconGroupDataEntry();
+            ResImageGroupDataEntry cgdata = new ResImageGroupDataEntry();
             cgdata.bWidth = src.getOne();
             cgdata.bHeight = src.getOne();
             cgdata.bColorCount = src.getOne();
@@ -1035,6 +1168,7 @@ namespace Origami.Win32
             cgdata.wBitCount = src.getTwo();
             cgdata.dwBytesInRes = src.getFour();
             cgdata.nID = src.getTwo();
+            cgdata.image = null;
             return cgdata;
         }
     }
@@ -1076,19 +1210,17 @@ namespace Origami.Win32
             bundleNum = (int)(id - 1) * 16;
         }
 
-        public static int getString(int strpos, byte[] dataBuf, List<string> strings)
+        public static void getString(ref int strpos, byte[] dataBuf, List<string> strings)
         {
-            int strLen = (int)((dataBuf[strpos + 1] * 256) + dataBuf[strpos]);
+            int strLen = (int)((dataBuf[strpos + 1] * 256) + dataBuf[strpos]) * 2;
             strpos += 2;
-            StringBuilder str = new StringBuilder(strLen);
-            for (int i = 0; i < strLen; i++)
+            String str = "";
+            if (strLen > 0)
             {
-                int ch = (int)((dataBuf[strpos + 1] * 256) + dataBuf[strpos]);
-                str.Append(Convert.ToChar(ch));
-                strpos += 2;
+                str = System.Text.Encoding.Unicode.GetString(dataBuf, strpos, strLen);
+                strpos += strLen;
             }
-            strings.Add(str.ToString());
-            return strpos;
+            strings.Add(str);            
         }
 
         public static List<string> parseData(byte[] dataBuf)
@@ -1097,11 +1229,10 @@ namespace Origami.Win32
             int strpos = 0;
             while (strpos < dataBuf.Length)
             {
-                strpos = getString(strpos, dataBuf, strings);
+                getString(ref strpos, dataBuf, strings);
             }
             return strings;
         }
-
     }
 
 //-----------------------------------------------------------------------------

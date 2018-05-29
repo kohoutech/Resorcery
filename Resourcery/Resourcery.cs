@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Text.RegularExpressions;
 
 using Origami.Win32;
 
@@ -51,7 +52,7 @@ namespace Resourcery
         public void openFile(String filename)
         {
             exeFile = new Win32Exe();
-            exeFile.readFile(filename);
+            exeFile.readFile(filename);            
             resources = exeFile.resourceTable;
         }
 
@@ -203,12 +204,12 @@ namespace Resourcery
                     loadTreeNode(udata, treeNode);
                 }
             }
-            treeView.MouseDoubleClick += new MouseEventHandler(treeView_MouseDoubleClick);
+            treeView.AfterSelect += new TreeViewEventHandler(treeView_AfterSelect);             
         }
 
 //- handling events -----------------------------------------------------------
 
-        private void treeView_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void treeView_AfterSelect(object sender, TreeViewEventArgs  e)
         {
             TreeNode node = treeView.SelectedNode;
             if (node is ResTreeNode)
@@ -217,13 +218,21 @@ namespace Resourcery
                 ResourceData dataNode = resNode.dataNode;
                 ResourceItem itemNode = dataNode.getItem(resNode.lang);
                 pbox = null;
-                if (dataNode is ResStringTable)
+
+                //image resources
+                if (dataNode is ResBitmap) 
+                {
+                    displayImage((Bitmap)itemNode.item);
+                }
+                else if ((dataNode is ResIcon) || (dataNode is ResCursor))
+                {
+                    displayImage(((Icon)itemNode.item).ToBitmap());                    
+                }
+
+                //textual resources
+                else if (dataNode is ResStringTable)
                 {
                     displayStringTable(itemNode);
-                }
-                else if (dataNode is ResBitmap) 
-                {
-                    displayBitmap(itemNode);
                 }
                 else if (dataNode is ResAccelerator)
                 {
@@ -233,7 +242,7 @@ namespace Resourcery
                 {
                 displayRawData(itemNode);
                 }
-            }
+            }            
         }
 
 //- displaying data -----------------------------------------------------------
@@ -294,11 +303,10 @@ namespace Resourcery
             dataText.Text = info.ToString();
         }
 
-        void displayBitmap(ResourceItem item)
+        void displayImage(Bitmap bmp)
         {
             dataDisplay.Controls.Clear();
             pbox = new PictureBox();
-            Bitmap bmp = (Bitmap)item.item;
             pbox.Image = bmp;
             pbox.Width = bmp.Width;
             pbox.Height = bmp.Height;
@@ -317,12 +325,20 @@ namespace Resourcery
             ResStringTable parent = (ResStringTable)item.parent;
             int i = parent.bundleNum;
             List<String> strtbl = (List<String>)item.item;
+            StringBuilder st = new StringBuilder();
+            st.AppendLine("STRINGTABLE");
+            st.AppendLine("{");
             foreach (String str in strtbl)
             {
-                dataText.Text += (i.ToString("X4") + " : " + str);
-                dataText.Text += "\r\n";
+                if (str.Length > 0)
+                {
+                    String str1 = str.Replace("\r", "\\r").Replace("\n", "\\n");
+                    st.AppendLine(i.ToString() + ",\t\"" + str1 + "\"");
+                }
                 i++;
             }
+            st.AppendLine("}");
+            dataText.Text = st.ToString();            
         }
 
         void displayAccelerator(ResourceItem item)
@@ -335,7 +351,6 @@ namespace Resourcery
                 dataText.Text += "\r\n";
             }
         }
-
     }
 
 //-----------------------------------------------------------------------------
@@ -351,7 +366,7 @@ namespace Resourcery
         {
             lang = _lang;
             dataNode = _node;
-        }
+        }        
     }
 }
 

@@ -63,11 +63,17 @@ namespace Resourcery
         {
             resorceryStatusLabel.Text = "Loading...";
             closeFile();
-            res.openFile(filename);
-            res.parseData();
-            res.loadTreeView();
-
-            this.Text = "Resourcery [" + filename + "]";
+            try
+            {
+                res.openFile(filename);
+                res.parseData();
+                res.loadTreeView();
+                this.Text = "Resourcery [" + filename + "]";
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Loading Error");
+            }
             resorceryStatusLabel.Text = "";
         }
 
@@ -79,20 +85,20 @@ namespace Resourcery
         private void showOpenFileDialog()
         {
             String filename = "";
-            //if (currentPath != null)
-            //{
-            //    resorceryOpenFileDialog.InitialDirectory = currentPath;
-            //}
-            //else
-            //{
-            //    resorceryOpenFileDialog.InitialDirectory = Application.StartupPath;
-            //}
-            //resorceryOpenFileDialog.FileName = "";
-            //resorceryOpenFileDialog.DefaultExt = "*.exe";
-            //resorceryOpenFileDialog.Filter = "Executable files|*.exe|DLL files|*.dll|All files|*.*";
-            //resorceryOpenFileDialog.ShowDialog();
-            //filename = resorceryOpenFileDialog.FileName;
-            filename = "test.exe";
+            if (currentPath != null)
+            {
+                resorceryOpenFileDialog.InitialDirectory = currentPath;
+            }
+            else
+            {
+                resorceryOpenFileDialog.InitialDirectory = Application.StartupPath;
+            }
+            resorceryOpenFileDialog.FileName = "";
+            resorceryOpenFileDialog.DefaultExt = "*.exe";
+            resorceryOpenFileDialog.Filter = "Executable files|*.exe|DLL files|*.dll|All files|*.*";
+            resorceryOpenFileDialog.ShowDialog();
+            filename = resorceryOpenFileDialog.FileName;
+            //filename = "test.exe";
             if (filename.Length != 0)
             {
                 currentPath = Path.GetDirectoryName(filename);
@@ -131,7 +137,7 @@ namespace Resourcery
 
         private void aboutHelpMenuItem_Click(object sender, EventArgs e)
         {
-            String msg = "Resourcery\nversion 1.1.0\n" + "\xA9 Origami Software 1998-2018\n" + "http://origami.kohoutech.com";
+            String msg = "Resourcery\nversion 1.1.1\n" + "\xA9 Origami Software 1998-2018\n" + "http://origami.kohoutech.com";
             MessageBox.Show(msg, "About");
 
         }
